@@ -1,0 +1,27 @@
+name: Continuous Integration
+
+on: [push]  # Runs on every push to the repo
+
+jobs:
+  test-and-lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3  # Clones the repo
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'  # Matches environment.yml
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest  # Install flake8 and pytest
+        conda env create -f environment.yml  # Create the fastapi env
+        source activate fastapi  # Activate it
+    - name: Run Flake8
+      run: |
+        source activate fastapi
+        flake8 . --max-line-length=88 --extend-ignore=E203  # Check code style
+    - name: Run PyTest
+      run: |
+        source activate fastapi
+        pytest test_ml.py  # Run tests in test_ml.py
