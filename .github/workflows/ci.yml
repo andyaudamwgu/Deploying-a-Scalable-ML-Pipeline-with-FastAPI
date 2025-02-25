@@ -1,27 +1,27 @@
 name: Continuous Integration
 
-on: [push]  # Runs on every push to the repo
+on: [push]
 
 jobs:
   test-and-lint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3  # Clones the repo
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v4
+    - uses: actions/checkout@v3
+    - name: Set up Conda
+      uses: conda-incubator/setup-miniconda@v3
       with:
         python-version: '3.10'  # Matches environment.yml
-    - name: Install dependencies
+        environment-file: environment.yml
+        activate-environment: fastapi
+        auto-activate-base: false
+    - name: Install extra dependencies
+      shell: bash -l {0}
       run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest  # Install flake8 and pytest
-        conda env create -f environment.yml  # Create the fastapi env
-        source activate fastapi  # Activate it
+        conda info  # Verify environment
+        pip install flake8 pytest  # Install since not in environment.yml
     - name: Run Flake8
-      run: |
-        source activate fastapi
-        flake8 . --max-line-length=88 --extend-ignore=E203  # Check code style
+      shell: bash -l {0}
+      run: flake8 . --max-line-length=88 --extend-ignore=E203
     - name: Run PyTest
-      run: |
-        source activate fastapi
-        pytest test_ml.py  # Run tests in test_ml.py
+      shell: bash -l {0}
+      run: pytest test_ml.py
