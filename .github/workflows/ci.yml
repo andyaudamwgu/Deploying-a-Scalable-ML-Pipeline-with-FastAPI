@@ -10,15 +10,15 @@ jobs:
     - name: Set up Conda
       uses: conda-incubator/setup-miniconda@v3
       with:
-        python-version: '3.10'  # Matches environment.yml
+        python-version: '3.10'
         environment-file: environment.yml
         activate-environment: fastapi
         auto-activate-base: false
     - name: Install extra dependencies
       shell: bash -l {0}
       run: |
-        conda info  # Verify environment
-        pip install flake8 pytest  # Install since not in environment.yml
+        conda info
+        pip install flake8 pytest
     - name: Run Flake8
       shell: bash -l {0}
       run: flake8 . --max-line-length=88 --extend-ignore=E203
