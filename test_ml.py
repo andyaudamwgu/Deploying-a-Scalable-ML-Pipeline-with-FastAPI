@@ -34,7 +34,9 @@ def test_train_model_type():
         sample_data, cat_features, "salary", True
     )
     model = train_model(X_train, y_train)
-    assert isinstance(model, RandomForestClassifier), "Model should be a RandomForestClassifier"
+    assert isinstance(model, RandomForestClassifier), (
+        "Model should be a RandomForestClassifier"
+    )
 
 
 def test_compute_model_metrics_range():
