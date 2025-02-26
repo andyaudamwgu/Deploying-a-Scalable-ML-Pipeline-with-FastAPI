@@ -14,8 +14,8 @@ from ml.model import (
 # Load the census.csv data
 project_path = os.getcwd()  # Adjust if data is elsewhere
 data_path = os.path.join(project_path, "data", "census.csv")
-print(data_path)
-data = pd.read_csv(data_path)  # Load data
+print(f"Loading data from {data_path}")
+data = pd.read_csv(data_path)
 
 # Split the data into train and test datasets
 train, test = train_test_split(data, test_size=0.2, random_state=42)
@@ -56,11 +56,14 @@ model = train_model(X_train, y_train)
 # Save the model and encoder
 model_path = os.path.join(project_path, "model", "model.pkl")
 save_model(model, model_path)
+print(f"Model saved to {model_path}")
 encoder_path = os.path.join(project_path, "model", "encoder.pkl")
 save_model(encoder, encoder_path)
+print(f"Model saved to {encoder_path}")
 
 # Load the model
 model = load_model(model_path)
+print(f"Loading model from {model_path}")
 
 # Run inference on the test dataset
 preds = inference(model, X_test)
@@ -70,19 +73,19 @@ p, r, fb = compute_model_metrics(y_test, preds)
 print(f"Precision: {p:.4f} | Recall: {r:.4f} | F1: {fb:.4f}")
 
 # Compute performance on model slices
-for col in cat_features:
-    for slicevalue in sorted(test[col].unique()):
-        count = test[test[col] == slicevalue].shape[0]
-        p, r, fb = performance_on_categorical_slice(
-            test,
-            col,
-            slicevalue,
-            cat_features,
-            "salary",
-            encoder,
-            lb,
-            model
-        )
-        with open("slice_output.txt", "a") as f:
+with open("slice_output.txt", "w") as f:  # Overwrite file each run
+    for col in cat_features:
+        for slicevalue in sorted(test[col].unique()):
+            count = test[test[col] == slicevalue].shape[0]
+            p, r, fb = performance_on_categorical_slice(
+                test,
+                col,
+                slicevalue,
+                cat_features,
+                "salary",
+                encoder,
+                lb,
+                model
+            )
             print(f"{col}: {slicevalue}, Count: {count:,}", file=f)
             print(f"Precision: {p:.4f} | Recall: {r:.4f} | F1: {fb:.4f}", file=f)
