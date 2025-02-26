@@ -1,6 +1,7 @@
 import pickle
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import fbeta_score, precision_score, recall_score
+from ml.data import process_data  # Add this line
 
 
 def train_model(X_train, y_train):
