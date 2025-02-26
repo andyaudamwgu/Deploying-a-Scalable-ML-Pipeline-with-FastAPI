@@ -12,7 +12,7 @@ from ml.model import (
 )
 
 # Load the census.csv data
-project_path = os.getcwd()  # Adjust if data is elsewhere
+project_path = os.getcwd()
 data_path = os.path.join(project_path, "data", "census.csv")
 print(f"Loading data from {data_path}")
 data = pd.read_csv(data_path)
@@ -73,7 +73,7 @@ p, r, fb = compute_model_metrics(y_test, preds)
 print(f"Precision: {p:.4f} | Recall: {r:.4f} | F1: {fb:.4f}")
 
 # Compute performance on model slices
-with open("slice_output.txt", "w") as f:  # Overwrite file each run
+with open("slice_output.txt", "w") as f:
     for col in cat_features:
         for slicevalue in sorted(test[col].unique()):
             count = test[test[col] == slicevalue].shape[0]
@@ -89,3 +89,4 @@ with open("slice_output.txt", "w") as f:  # Overwrite file each run
             )
             print(f"{col}: {slicevalue}, Count: {count:,}", file=f)
             print(f"Precision: {p:.4f} | Recall: {r:.4f} | F1: {fb:.4f}", file=f)
+            

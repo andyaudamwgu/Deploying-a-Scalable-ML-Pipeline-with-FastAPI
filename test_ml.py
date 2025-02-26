@@ -31,10 +31,7 @@ cat_features = [
 def test_train_model_type():
     """Test that train_model returns a RandomForestClassifier."""
     X_train, y_train, _, _ = process_data(
-        sample_data,
-        categorical_features=cat_features,
-        label="salary",
-        training=True
+        sample_data, cat_features, "salary", True
     )
     model = train_model(X_train, y_train)
     assert isinstance(model, RandomForestClassifier), "Model should be a RandomForestClassifier"
@@ -55,18 +52,10 @@ def test_process_data_shape():
     train_data = sample_data.iloc[:1]  # 1 row for train
     test_data = sample_data.iloc[1:]   # 1 row for test
     X_train, y_train, encoder, lb = process_data(
-        train_data,
-        categorical_features=cat_features,
-        label="salary",
-        training=True
+        train_data, cat_features, "salary", True
     )
     X_test, y_test, _, _ = process_data(
-        test_data,
-        categorical_features=cat_features,
-        label="salary",
-        training=False,
-        encoder=encoder,
-        lb=lb
+        test_data, cat_features, "salary", False, encoder, lb
     )
     assert X_train.shape[0] == 1, "X_train should have 1 row"
     assert y_train.shape[0] == 1, "y_train should have 1 row"
