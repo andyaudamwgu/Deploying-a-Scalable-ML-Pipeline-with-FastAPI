@@ -1,7 +1,6 @@
-from sklearn.metrics import fbeta_score, precision_score, recall_score
-from sklearn.ensemble import RandomForestClassifier
 import pickle
-
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import fbeta_score, precision_score, recall_score
 from ml.data import process_data
 
 
@@ -66,7 +65,7 @@ def inference(model, X):
 
 
 def save_model(model, path):
-    """Serializes model to a file.
+    """Save a model or any categorical encoders to a file.
 
     Inputs
     ------
@@ -80,7 +79,17 @@ def save_model(model, path):
 
 
 def load_model(path):
-    """Loads pickle file from `path` and returns it."""
+    """Load a model or any categorical encoders from `path` and return it.
+
+    Inputs
+    ------
+    path : str
+        Path to the pickle file.
+    Returns
+    -------
+    model
+        Loaded model or encoder.
+    """
     with open(path, 'rb') as f:
         return pickle.load(f)
 
@@ -91,4 +100,42 @@ def performance_on_categorical_slice(
     """Compute model metrics on a data slice specified by a column name and value.
 
     Processes the data using one-hot encoding for categorical features and a label
-    binar
+    binarizer for the labels. This can be used in either training or inference.
+
+    Inputs
+    ------
+    data : pd.DataFrame
+        Dataframe with features and label.
+    column_name : str
+        Column for slicing.
+    slice_value : str, int, float
+        Value of the slice feature.
+    categorical_features : list
+        List of categorical feature names.
+    label : str
+        Name of the label column in `data`.
+    encoder : sklearn.preprocessing._encoders.OneHotEncoder
+        Trained OneHotEncoder.
+    lb : sklearn.preprocessing._label.LabelBinarizer
+        Trained LabelBinarizer.
+    model : RandomForestClassifier
+        Model used for the task.
+
+    Returns
+    -------
+    precision : float
+    recall : float
+    fbeta : float
+    """
+    slice_data = data[data[column_name] == slice_value]
+    X_slice, y_slice, _, _ = process_data(
+        slice_data,
+        categorical_features=categorical_features,
+        label=label,
+        training=False,
+        encoder=encoder,
+        lb=lb
+    )
+    preds = inference(model, X_slice)
+    precision, recall, fbeta = compute_model_metrics(y_slice, preds)
+    return precision, recall, fbeta

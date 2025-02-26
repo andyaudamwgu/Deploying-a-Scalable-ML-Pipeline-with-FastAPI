@@ -1,8 +1,10 @@
 import os
-
+import pandas as pd
+from sklearn.model_selection import train_test_split
 from ml.data import process_data
 from ml.model import (
     compute_model_metrics,
+    inference,
     load_model,
     performance_on_categorical_slice,
     save_model,
@@ -10,7 +12,7 @@ from ml.model import (
 )
 
 # Load the census.csv data
-project_path = "Your path here"  # Update with actual path
+project_path = os.getcwd()  # Adjust if data is elsewhere
 data_path = os.path.join(project_path, "data", "census.csv")
 print(data_path)
 data = pd.read_csv(data_path)  # Load data
@@ -18,7 +20,7 @@ data = pd.read_csv(data_path)  # Load data
 # Split the data into train and test datasets
 train, test = train_test_split(data, test_size=0.2, random_state=42)
 
-# DO NOT MODIFY
+# Define categorical features
 cat_features = [
     "workclass",
     "education",
