@@ -42,11 +42,8 @@ async def get_root():
 @app.post("/predict/")
 async def post_inference(data: Data):
     """Make a model inference based on input data."""
-    # Convert Pydantic model to dict
     data_dict = data.dict()
-    # Convert to DataFrame with hyphenated column names
     data_df = pd.DataFrame([{k.replace("_", "-"): v for k, v in data_dict.items()}])
-    # Process the data
     X, _, _, _ = process_data(
         data_df,
         categorical_features=[
@@ -58,7 +55,6 @@ async def post_inference(data: Data):
         encoder=encoder,
         lb=None
     )
-    # Run inference
     pred = model.predict(X)[0]
     result = ">50K" if pred == 1 else "<=50K"
     return {"result": result}

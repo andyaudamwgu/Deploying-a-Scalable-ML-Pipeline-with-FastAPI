@@ -57,4 +57,3 @@ def performance_on_categorical_slice(
     )
     preds = inference(model, X_slice)
     return compute_model_metrics(y_slice, preds)
-    
