@@ -1,32 +1,29 @@
 import requests
 
-# Send a GET request to http://127.0.0.1:8000
-r = requests.get("http://127.0.0.1:8000")  # GET request
+# Send GET request
+get_url = "http://127.0.0.1:8000/"
+get_response = requests.get(get_url)
+print(f"Status Code: {get_response.status_code}")
+print(f"Result: {get_response.json()['message']}")
 
-# Print the status code and welcome message
-print(r.status_code)  # Print status code
-print(r.json())  # Print welcome message (assuming JSON response)
-
-data = {
-    "age": 37,
-    "workclass": "Private",
-    "fnlgt": 178356,
-    "education": "HS-grad",
-    "education-num": 10,
-    "marital-status": "Married-civ-spouse",
-    "occupation": "Prof-specialty",
-    "relationship": "Husband",
+# Send POST request
+post_url = "http://127.0.0.1:8000/predict/"
+post_data = {
+    "age": 39,
+    "workclass": "State-gov",
+    "fnlgt": 77516,
+    "education": "Bachelors",
+    "education-num": 13,
+    "marital-status": "Never-married",
+    "occupation": "Adm-clerical",
+    "relationship": "Not-in-family",
     "race": "White",
     "sex": "Male",
-    "capital-gain": 0,
+    "capital-gain": 2174,
     "capital-loss": 0,
     "hours-per-week": 40,
-    "native-country": "United-States",
+    "native-country": "United-States"
 }
-
-# Send a POST request using the data above
-r = requests.post("http://127.0.0.1:8000/predict_salary/", json=data)  # POST request
-
-# Print the status code and result
-print(r.status_code)  # Print status code
-print(r.json())  # Print result (assuming JSON response)
+post_response = requests.post(post_url, json=post_data)
+print(f"Status Code: {post_response.status_code}")
+print(f"Result: {post_response.json()['result']}")

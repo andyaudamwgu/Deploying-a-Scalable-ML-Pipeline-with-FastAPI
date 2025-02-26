@@ -1,59 +1,64 @@
 import pandas as pd
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
+from ml.data import process_data, apply_label
+from ml.model import load_model
 
-from ml.data import apply_label, process_data
-from ml.model import load_model, inference
+# Load model and encoder
+model_path = "model/model.pkl"
+encoder_path = "model/encoder.pkl"
+model = load_model(model_path)
+encoder = load_model(encoder_path)
 
-# DO NOT MODIFY
+# Define input data structure
 class Data(BaseModel):
-    age: int = Field(..., example=37)
-    workclass: str = Field(..., example="Private")
-    fnlgt: int = Field(..., example=178356)
-    education: str = Field(..., example="HS-grad")
-    education_num: int = Field(..., example=10, alias="education-num")
-    marital_status: str = Field(
-        ..., example="Married-civ-spouse", alias="marital-status"
-    )
-    occupation: str = Field(..., example="Prof-specialty")
-    relationship: str = Field(..., example="Husband")
+    age: int = Field(..., example=39)
+    workclass: str = Field(..., example="State-gov")
+    fnlgt: int = Field(..., example=77516)
+    education: str = Field(..., example="Bachelors")
+    education_num: int = Field(..., example=13, alias="education-num")
+    marital_status: str = Field(..., example="Never-married", alias="marital-status")
+    occupation: str = Field(..., example="Adm-clerical")
+    relationship: str = Field(..., example="Not-in-family")
     race: str = Field(..., example="White")
     sex: str = Field(..., example="Male")
-    capital_gain: int = Field(..., example=0, alias="capital-gain")
+    capital_gain: int = Field(..., example=2174, alias="capital-gain")
     capital_loss: int = Field(..., example=0, alias="capital-loss")
     hours_per_week: int = Field(..., example=40, alias="hours-per-week")
     native_country: str = Field(..., example="United-States", alias="native-country")
 
-
-path = "encoder.pkl"  # Path for the saved encoder
-encoder = load_model(path)
-
-path = "model.pkl"  # Path for the saved model
-model = load_model(path)
-
-app = FastAPI()  # Create FastAPI instance
+# Create FastAPI instance
+app = FastAPI()
 
 
 @app.get("/")
 async def get_root():
-    """Say hello!"""
-    return {"message": "Welcome to the ML Pipeline API"}  # Welcome message
+    """Return a welcome message."""
+    return {"message": "Hello from the Income Prediction API!"}
 
 
-@app.post("/data/")
+@app.post("/predict/")
 async def post_inference(data: Data):
-    # DO NOT MODIFY: turn the Pydantic model into a dict.
+    """Make a model inference based on input data."""
+    # Convert Pydantic model to dict
     data_dict = data.dict()
-    # DO NOT MODIFY: clean up the dict to turn it into a Pandas DataFrame.
-    # The data has names with hyphens and Python does not allow those as variable names.
-    # Here it uses the functionality of FastAPI/Pydantic/etc to deal with this.
-    data = {k.replace("_", "-"): [v] for k, v in data_dict.items()}
-    data = pd.DataFrame.from_dict(data)
-
-    data_processed, _, _, _ = process_data(
-        data,  # Use data as input
-        training=False,  # Not training
-        encoder=encoder,  # Pass the loaded encoder
+    # Convert to DataFrame with hyphenated column names
+    data_df = pd.DataFrame([{k.replace("_", "-"): v for k, v in data_dict.items()}])
+    
+    # Process the data
+    X, _, _, _ = process_data(
+        data_df,
+        categorical_features=[
+            "workclass", "education", "marital-status", "occupation",
+            "relationship", "race", "sex", "native-country"
+        ],
+        label=None,  # No label for inference
+        training=False,
+        encoder=encoder,
+        lb=None  # Not needed for inference
     )
-    _inference = inference(model, data_processed)  # Predict using processed data
-    return {"result": apply_label(_inference)}  # Return labeled result
+    
+    # Run inference
+    pred = model.predict(X)
+    result = apply_label(pred)
+    return {"result": result}
